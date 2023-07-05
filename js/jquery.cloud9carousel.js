@@ -372,20 +372,20 @@
             
             // Verifica qual item está mais próximo do centro do carrossel
             self.items.forEach(function(item, index) {
-                var diff = Math.abs(item.scale - 1);
-                if (diff < closestDiff) {
-                    closestDiff = diff;
-                    closestIndex = index;
-                }
+              var diff = Math.abs(item.scale - 1);
+              if (diff < closestDiff) {
+                  closestDiff = diff;
+                  closestIndex = index;
+              }
             });
 
             var currentItemIndex = closestIndex;
 
             // Aqui verificamos a direção do movimento do toque e movemos o carrossel de acordo.
             if (deltaX > 0) {
-                self.goTo((currentItemIndex + 1));
+              self.goTo((currentItemIndex + 1));
             } else {
-                self.goTo(currentItemIndex - 1 );
+              self.goTo(currentItemIndex - 1 );
             }
         
             $("#showcase img").css('cursor', 'grab'); // Adiciona a mudança do cursor
@@ -394,68 +394,72 @@
         
         // Tratando eventos de toque
         $container.find('img').each(function(index, element) {
-            // Armazena a posição inicial de cada item do carrossel
-            initialPositions[index] = $(element).position().left;
+          // Armazena a posição inicial de cada item do carrossel
+          initialPositions[index] = $(element).position().left;
         }).on({
-            'touchstart': function (event) {
-                // Quando o toque começa, armazenamos a posição do toque
-                clickX = event.originalEvent.touches[0].pageX;
-            },
-            'touchmove': function (event) {
-                // Calcula a diferença entre a posição do toque atual e a inicial
-                var deltaX = event.originalEvent.touches[0].pageX - clickX;
-                
-                // Se o arrasto foi maior do que a metade da largura do item, limita o arrasto
-                if (Math.abs(deltaX) > itemWidth / 2) {
-                    return false;
-                }
-
-                // Impede a movimentação automática de position left
-                $(element).css('left', initialPositions[index]);
-
-                self.destRotation += (2 * Math.PI / (800 * self.items.length)) * (-deltaX);
-                self.play();
-                event.preventDefault();
-            },
-          'touchend': function (event) {
-                // Quando o toque termina, verificamos se o toque foi movido para a esquerda ou para a direita 
-                var deltaX = event.originalEvent.changedTouches[0].pageX - clickX;
+          'touchstart': function (event) {
+            // Quando o toque começa, armazenamos a posição do toque
+            clickX = event.originalEvent.touches[0].pageX;
+          },
+          'touchmove': function (event) {
+            // Calcula a diferença entre a posição do toque atual e a inicial
+            var deltaX = event.originalEvent.touches[0].pageX - clickX;
             
-                var closestIndex;
-                var closestDiff = Infinity;
-
-                self.items.forEach(function(item, index) {
-                    var diff = Math.abs(item.scale - 1);
-                    if (diff < closestDiff) {
-                        closestDiff = diff;
-                        closestIndex = index;
-                    }
-                });
-
-                var currentItemIndex = closestIndex;
-                
-                // Aqui verificamos a direção do movimento do toque e movemos o carrossel de acordo.
-                if (deltaX > 0) {
-                    self.goTo((currentItemIndex + 1));
-                } else {
-                    self.goTo(currentItemIndex - 1 );
-                }
-            
-                event.preventDefault();
+            // Se o arrasto foi maior do que a metade da largura do item, limita o arrasto
+            if (Math.abs(deltaX) > itemWidth / 2) {
+                return false;
             }
+            
+            self.destRotation += (2 * Math.PI / (800 * self.items.length)) * (-deltaX);
+            self.play();
+            event.preventDefault();
+          },
+          'touchend': function (event) {
+            // Quando o toque termina, verificamos se o toque foi movido para a esquerda ou para a direita 
+            var deltaX = event.originalEvent.changedTouches[0].pageX - clickX;
+
+            // Verifica se é um click (sem movimento)
+            if (deltaX === 0) {
+
+              var hits = $(event.target).closest('.' + options.itemClass);
+
+              self.goTo(self.items.indexOf(hits[0].item));
+            } else {
+              
+              var closestIndex;
+              var closestDiff = Infinity;
+
+              self.items.forEach(function(item, index) {
+                  var diff = Math.abs(item.scale - 1);
+                  if (diff < closestDiff) {
+                    closestDiff = diff;
+                    closestIndex = index;
+                  }
+              });
+
+              var currentItemIndex = closestIndex;
+
+              // Aqui verificamos a direção do movimento do toque e movemos o carrossel de acordo.
+              if (deltaX > 0) {
+                self.goTo((currentItemIndex + 1));
+              } else {
+                self.goTo(currentItemIndex - 1 );
+              }
+            }
+          }
         });        
       }
       
       if (options.mouseWheel) {
-          $container.bind('mousewheel.cloud9', function (event) {
-            event.preventDefault();
+        $container.bind('mousewheel.cloud9', function (event) {
+          event.preventDefault();
 
-            // Roda do mouse para cima ou para baixo
-            var delta = Math.sign(event.originalEvent.wheelDelta || -event.originalEvent.detail);
+          // Roda do mouse para cima ou para baixo
+          var delta = Math.sign(event.originalEvent.wheelDelta || -event.originalEvent.detail);
 
-            self.go((delta > 0) ? 1 : -1);
-            return false;
-          });
+          self.go((delta > 0) ? 1 : -1);
+          return false;
+        });
       }
 
       if( options.bringToFront ) {
