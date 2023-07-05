@@ -8,28 +8,28 @@
   <meta charset="UTF-8">
   <title>Carosel boladão</title>
   <link rel="stylesheet" href="css/main.css">
-  <link href="css/jquery.app_jqueryscripttop.css" rel="stylesheet" type="text/css">
 </head>
 
 <body>
   <div id="wrap">
     <div id="showcase" class="noselect">
-      <img class="cloud9-item swiper-slide" src="img/firefox.png" alt="Firefox">
-      <img class="cloud9-item swiper-slide" src="img/wyzo.png" alt="Wyzo">
-      <img class="cloud9-item swiper-slide" src="img/opera.png" alt="Opera">
-      <img class="cloud9-item swiper-slide" src="img/chrome.png" alt="Chrome">
-      <img class="cloud9-item swiper-slide" src="img/iexplore.png" alt="Internet Explorer">
-      <img class="cloud9-item swiper-slide" src="img/safari.png" alt="Safari">
-      <img class="cloud9-item swiper-slide" src="img/wyzo.png" alt="Wyzo">
-      <img class="cloud9-item swiper-slide" src="img/opera.png" alt="Opera">
-      <img class="cloud9-item swiper-slide" src="img/chrome.png" alt="Chrome">
-      <img class="cloud9-item swiper-slide" src="img/iexplore.png" alt="Internet Explorer">
-      <img class="cloud9-item swiper-slide" src="img/safari.png" alt="Safari">
-      
+      <img class="cloud9-item" src="img/firefox.png" alt="Firefox">
+      <img class="cloud9-item" src="img/wyzo.png" alt="Wyzo">
+      <img class="cloud9-item" src="img/opera.png" alt="Opera">
+      <img class="cloud9-item" src="img/chrome.png" alt="Chrome">
+      <img class="cloud9-item" src="img/iexplore.png" alt="Internet Explorer">
+      <img class="cloud9-item" src="img/safari.png" alt="Safari">
+      <img class="cloud9-item" src="img/wyzo.png" alt="Wyzo">
+      <img class="cloud9-item" src="img/opera.png" alt="Opera">
+      <img class="cloud9-item" src="img/chrome.png" alt="Chrome">
+      <img class="cloud9-item" src="img/iexplore.png" alt="Internet Explorer">
+      <img class="cloud9-item" src="img/safari.png" alt="Safari">      
     </div>
     <p id="item-title">&nbsp;</p>
   </div>
   <script src="js/jquery.min.js"></script>
+  <script src="js/jquery-ui.js"></script>
+  <script src="js/touch-punch.min.js"></script>
   <script src="js/jquery.reflection.js"></script>
   <script src="js/jquery.cloud9carousel.js"></script>
   <script>
@@ -37,21 +37,24 @@
       var showcase = $("#showcase")
 
       showcase.Cloud9Carousel({
-        yPos: 42,
         yRadius: 100,
+        xRadius: 600,
         mirror: {
           gap: 12,
-          height: 0.2,
-          opacity: 0.1
+          height: 0.4,
+          opacity: 0.2
         },
-        autoPlay: true,
+        autoPlay: false,
         bringToFront: true,
         onRendered: showcaseUpdated,
         onLoaded: function () {
           showcase.css('visibility', 'visible')
           showcase.css('display', 'none')
           showcase.fadeIn(1500)
-        }
+        },
+        mouseWheel: true,
+        draggable: true,
+        speed: 4
       })
 
       function showcaseUpdated(showcase) {

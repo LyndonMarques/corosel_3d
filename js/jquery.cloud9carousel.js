@@ -316,7 +316,7 @@
 
     this.bindControls = function() {
       if( options.buttonLeft ) {
-        options.buttonLeft.bind( 'click', function() {
+        options.buttonLeft.bind('click', function () {
           self.go( -1 );
           return false;
         } );
@@ -329,17 +329,139 @@
         } );
       }
 
-      if( options.mouseWheel ) {
-        $container.bind( 'mousewheel.cloud9', function( event, delta ) {
-          self.go( (delta > 0) ? 1 : -1 );
-          return false;
-        } );
+      if (options.draggable) {
+        var clickX, initialPositions = [];
+        var $images = $container.find('img'); // Evita buscas repetidas
+        var itemWidth = $images.first().width(); // Largura do item (assumindo que todos os itens têm a mesma largura)
+
+        $images.each(function(index, element) {
+          // Armazena a posição inicial de cada item do carrossel
+          initialPositions[index] = $(element).position().left;
+        });
+
+        $images.draggable({
+          axis: 'x',
+          start: function (event, ui) {
+            
+            clickX = event.clientX; // Quando o arrasto começa, armazenamos a posição do mouse
+            $("#showcase img").css('cursor', 'grabbing');
+          },
+          drag: function (event, ui) {
+                        
+            var deltaX = event.clientX - clickX; // Calcula a diferença entre a posição do mouse atual e a inicial
+
+            // Se o arrasto foi maior do que a metade da largura do item, limita o arrasto
+            if (Math.abs(deltaX) > itemWidth / 2) {
+              return false;
+            }
+
+            // Impede a movimentação automática de position left
+            ui.position.left = ui.originalPosition.left;
+
+            // Calculo da velocidade da rotação
+            self.destRotation += (2 * Math.PI / (800 * self.items.length)) * (-deltaX);
+            self.play();  
+          },
+          stop: function (event) {
+            
+            // Calcula a diferença entre a posição do mouse atual e a inicial
+            var deltaX = event.clientX - clickX;
+
+            var closestIndex;
+            var closestDiff = Infinity;
+            
+            // Verifica qual item está mais próximo do centro do carrossel
+            self.items.forEach(function(item, index) {
+                var diff = Math.abs(item.scale - 1);
+                if (diff < closestDiff) {
+                    closestDiff = diff;
+                    closestIndex = index;
+                }
+            });
+
+            var currentItemIndex = closestIndex;
+
+            // Aqui verificamos a direção do movimento do toque e movemos o carrossel de acordo.
+            if (deltaX > 0) {
+                self.goTo((currentItemIndex + 1));
+            } else {
+                self.goTo(currentItemIndex - 1 );
+            }
+        
+            $("#showcase img").css('cursor', 'grab'); // Adiciona a mudança do cursor
+          }
+        });
+        
+        // Tratando eventos de toque
+        $container.find('img').each(function(index, element) {
+            // Armazena a posição inicial de cada item do carrossel
+            initialPositions[index] = $(element).position().left;
+        }).on({
+            'touchstart': function (event) {
+                // Quando o toque começa, armazenamos a posição do toque
+                clickX = event.originalEvent.touches[0].pageX;
+            },
+            'touchmove': function (event) {
+                // Calcula a diferença entre a posição do toque atual e a inicial
+                var deltaX = event.originalEvent.touches[0].pageX - clickX;
+                
+                // Se o arrasto foi maior do que a metade da largura do item, limita o arrasto
+                if (Math.abs(deltaX) > itemWidth / 2) {
+                    return false;
+                }
+
+                // Impede a movimentação automática de position left
+                $(element).css('left', initialPositions[index]);
+
+                self.destRotation += (2 * Math.PI / (800 * self.items.length)) * (-deltaX);
+                self.play();
+                event.preventDefault();
+            },
+          'touchend': function (event) {
+                // Quando o toque termina, verificamos se o toque foi movido para a esquerda ou para a direita 
+                var deltaX = event.originalEvent.changedTouches[0].pageX - clickX;
+            
+                var closestIndex;
+                var closestDiff = Infinity;
+
+                self.items.forEach(function(item, index) {
+                    var diff = Math.abs(item.scale - 1);
+                    if (diff < closestDiff) {
+                        closestDiff = diff;
+                        closestIndex = index;
+                    }
+                });
+
+                var currentItemIndex = closestIndex;
+                
+                // Aqui verificamos a direção do movimento do toque e movemos o carrossel de acordo.
+                if (deltaX > 0) {
+                    self.goTo((currentItemIndex + 1));
+                } else {
+                    self.goTo(currentItemIndex - 1 );
+                }
+            
+                event.preventDefault();
+            }
+        });        
+      }
+      
+      if (options.mouseWheel) {
+          $container.bind('mousewheel.cloud9', function (event) {
+            event.preventDefault();
+
+            // Roda do mouse para cima ou para baixo
+            var delta = Math.sign(event.originalEvent.wheelDelta || -event.originalEvent.detail);
+
+            self.go((delta > 0) ? 1 : -1);
+            return false;
+          });
       }
 
       if( options.bringToFront ) {
         $container.bind( 'click.cloud9', function( event ) {
           var hits = $(event.target).closest( '.' + options.itemClass );
-
+          
           if( hits.length !== 0 ) {
             var diff = self.goTo( self.items.indexOf( hits[0].item ) );
 
