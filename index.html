@@ -56,10 +56,10 @@
         draggable: true,
         speed: 4
       })
-
+      
       function showcaseUpdated(showcase) {
         var title = $('#item-title').html(
-          $(showcase.nearestItem()).attr('alt')
+          showcase.nearestItem().element.alt
         )
 
         var c = Math.cos((showcase.floatIndex() % 1) * 2 * Math.PI)

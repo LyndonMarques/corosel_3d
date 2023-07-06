@@ -383,11 +383,19 @@
 
             // Aqui verificamos a direção do movimento do toque e movemos o carrossel de acordo.
             if (deltaX > 0) {
-              self.goTo((currentItemIndex + 1));
+              currentItemIndex = currentItemIndex + 1;            
             } else {
-              self.goTo(currentItemIndex - 1 );
+              currentItemIndex = currentItemIndex - 1;
             }
-        
+            
+            if (currentItemIndex < 0) { // Se o item atual for menor que 0, o próximo item será o último item do carrossel
+              currentItemIndex = (self.items.length - 1);
+            } else if (currentItemIndex == self.items.length) { // Se o item atual for maior que o número de itens, o próximo item será o primeiro item do carrossel
+              currentItemIndex = 0;
+            }
+            
+            self.goTo(currentItemIndex);
+
             $("#showcase img").css('cursor', 'grab'); // Adiciona a mudança do cursor
           }
         });
@@ -440,26 +448,56 @@
               var currentItemIndex = closestIndex;
 
               // Aqui verificamos a direção do movimento do toque e movemos o carrossel de acordo.
-              if (deltaX > 0) {
-                self.goTo((currentItemIndex + 1));
+              if (deltaX > 0) {                
+                currentItemIndex = currentItemIndex + 1;
               } else {
-                self.goTo(currentItemIndex - 1 );
+                currentItemIndex = currentItemIndex - 1;
               }
+              
+              if (currentItemIndex < 0) { // Se o item atual for menor que 0, o próximo item será o último item do carrossel
+                currentItemIndex = (self.items.length - 1);
+              } else if (currentItemIndex == self.items.length) { // Se o item atual for maior que o número de itens, o próximo item será o primeiro item do carrossel
+                currentItemIndex = 0;
+              }
+              
+              self.goTo(currentItemIndex );
             }
           }
         });        
       }
       
       if (options.mouseWheel) {
-        $container.bind('mousewheel.cloud9', function (event) {
-          event.preventDefault();
 
-          // Roda do mouse para cima ou para baixo
-          var delta = Math.sign(event.originalEvent.wheelDelta || -event.originalEvent.detail);
+        $container.bind('mousewheel.cloud9', function (event) {          
+          var deltaX = Math.sign(event.originalEvent.wheelDelta || -event.originalEvent.detail); // Roda do mouse para cima ou para baixo
 
-          self.go((delta > 0) ? 1 : -1);
-          return false;
-        });
+          var closestIndex;
+          var closestDiff = Infinity;
+                    
+          self.items.forEach(function(item, index) { // Verifica qual item está mais próximo do centro do carrossel
+            var diff = Math.abs(item.scale - 1);
+            if (diff < closestDiff) {
+                closestDiff = diff;
+                closestIndex = index;
+            }
+          });
+
+          var currentItemIndex = closestIndex;
+          
+          if (deltaX > 0) { // Aqui verificamos a direção do movimento do mouse wheel para cima e para baixo.
+            currentItemIndex = currentItemIndex + 1; // Para cima           
+          } else {
+            currentItemIndex = currentItemIndex - 1; // Para baixo
+          }
+            
+          if (currentItemIndex < 0) { // Se o item atual for menor que 0, o próximo item será o último item do carrossel
+            currentItemIndex = (self.items.length - 1);
+          } else if (currentItemIndex == self.items.length) { // Se o item atual for maior que o número de itens, o próximo item será o primeiro item do carrossel
+            currentItemIndex = 0;
+          }
+            
+          self.goTo(currentItemIndex);
+        });        
       }
 
       if( options.bringToFront ) {
@@ -534,7 +572,7 @@
         handle: 'carousel'
       }, options );
 
-      $(this).data( options.handle, new Carousel( this, options ) );
-    } );
+      $(this).data(options.handle, new Carousel(this, options));
+    });
   }
 })( window.jQuery || window.Zepto );
